@@ -198,6 +198,13 @@ export function convertToPng(imageData, width, height) {
 	// ICO BMPs have double height (includes AND mask)
 	const actualHeight = Math.abs(bmpHeight) / 2;
 
+	// Validate the height is as expected for ICO format
+	if (actualHeight !== height) {
+		throw new Error(
+			`BMP height mismatch: expected ${height}, got ${actualHeight}.`,
+		);
+	}
+
 	if (compression !== 0) {
 		throw new Error("Unsupported BMP format: compression not supported.");
 	}
@@ -407,6 +414,9 @@ function createChunk(type, data) {
 
 /**
  * Simple DEFLATE compression implementation.
+ * Note: This implementation creates uncompressed DEFLATE blocks, which is
+ * valid according to the DEFLATE specification but results in larger PNG files.
+ * This approach prioritizes simplicity and zero dependencies over file size.
  * @param {Uint8Array} data The data to compress.
  * @returns {Uint8Array} The compressed data.
  */
