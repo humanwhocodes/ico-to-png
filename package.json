@@ -1,6 +1,6 @@
 {
   "name": "@humanwhocodes/ico-to-png",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Convert .ico files to .png format without dependencies",
   "type": "module",
   "main": "dist/index.js",
@@ -72,6 +72,5 @@
     "typescript": "^5.6.3",
     "yorkie": "2.0.0"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
