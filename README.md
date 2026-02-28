@@ -23,13 +23,16 @@ This package exports two main functions:
 Extracts all images from ICO file data.
 
 **Parameters:**
+
 - `icoData` (Uint8Array): The ICO file data
 
 **Returns:** An array of objects, each containing:
+
 - `data` (Uint8Array): The raw image data (BMP or PNG)
 - `width` (number): The width of the image
 - `height` (number): The height of the image
 - `bpp` (number): The bits per pixel
+- `type` ("bmp" | "png"): The format of the raw image data
 
 **Example:**
 
@@ -42,7 +45,9 @@ const images = extractImages(icoData);
 
 console.log(`Found ${images.length} images`);
 images.forEach((image, index) => {
-	console.log(`Image ${index}: ${image.width}x${image.height}, ${image.bpp}bpp`);
+	console.log(
+		`Image ${index}: ${image.width}x${image.height}, ${image.bpp}bpp, type: ${image.type}`,
+	);
 });
 ```
 
@@ -51,6 +56,7 @@ images.forEach((image, index) => {
 Converts an image from ICO format to PNG format. If the image is already a PNG, it's returned as-is. If the image is a BMP, it's converted to PNG with proper transparency handling.
 
 **Parameters:**
+
 - `imageData` (Uint8Array): The image data from an ICO file
 - `width` (number): The width of the image
 - `height` (number): The height of the image
@@ -67,11 +73,7 @@ const icoData = await readFile("favicon.ico");
 const images = extractImages(icoData);
 
 // Convert the first image to PNG
-const pngData = convertToPng(
-	images[0].data,
-	images[0].width,
-	images[0].height
-);
+const pngData = convertToPng(images[0].data, images[0].width, images[0].height);
 
 await writeFile("favicon.png", pngData);
 ```
@@ -85,23 +87,23 @@ import { readFile, writeFile } from "fs/promises";
 async function convertIcoToPng(icoPath, pngPath) {
 	// Read the ICO file
 	const icoData = await readFile(icoPath);
-	
+
 	// Extract all images from the ICO
 	const images = extractImages(icoData);
-	
+
 	// Convert the largest image to PNG
 	const largestImage = images.reduce((prev, current) => {
-		return (current.width * current.height > prev.width * prev.height)
+		return current.width * current.height > prev.width * prev.height
 			? current
 			: prev;
 	});
-	
+
 	const pngData = convertToPng(
 		largestImage.data,
 		largestImage.width,
-		largestImage.height
+		largestImage.height,
 	);
-	
+
 	// Write the PNG file
 	await writeFile(pngPath, pngData);
 }

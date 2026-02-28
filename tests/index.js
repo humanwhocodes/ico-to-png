@@ -9,6 +9,10 @@
 
 import { extractImages, convertToPng } from "../src/index.js";
 import assert from "node:assert";
+import { readFile } from "node:fs/promises";
+import { readdirSync } from "node:fs";
+import { join, dirname, basename } from "node:path";
+import { fileURLToPath } from "node:url";
 
 //-----------------------------------------------------------------------------
 // Helpers
@@ -403,7 +407,10 @@ function simpleDeflate(data) {
 	let compressedSize = 2; // zlib header
 
 	for (let i = 0; i < numBlocks; i++) {
-		const blockSize = Math.min(maxBlockSize, data.length - i * maxBlockSize);
+		const blockSize = Math.min(
+			maxBlockSize,
+			data.length - i * maxBlockSize,
+		);
 		compressedSize += 5 + blockSize;
 	}
 
@@ -422,10 +429,13 @@ function simpleDeflate(data) {
 		compressed[offset] = isFinal;
 		compressed[offset + 1] = blockSize & 0xff;
 		compressed[offset + 2] = (blockSize >> 8) & 0xff;
-		compressed[offset + 3] = (~blockSize) & 0xff;
-		compressed[offset + 4] = ((~blockSize) >> 8) & 0xff;
+		compressed[offset + 3] = ~blockSize & 0xff;
+		compressed[offset + 4] = (~blockSize >> 8) & 0xff;
 
-		compressed.set(data.slice(blockStart, blockStart + blockSize), offset + 5);
+		compressed.set(
+			data.slice(blockStart, blockStart + blockSize),
+			offset + 5,
+		);
 		offset += 5 + blockSize;
 	}
 
@@ -505,6 +515,7 @@ describe("extractImages()", () => {
 		assert.strictEqual(images[0].width, 16);
 		assert.strictEqual(images[0].height, 16);
 		assert.strictEqual(images[0].bpp, 32);
+		assert.strictEqual(images[0].type, "bmp");
 		assert.ok(images[0].data instanceof Uint8Array);
 		assert.ok(images[0].data.length > 0);
 	});
@@ -527,6 +538,7 @@ describe("extractImages()", () => {
 		assert.strictEqual(images.length, 1);
 		assert.strictEqual(images[0].width, 16);
 		assert.strictEqual(images[0].height, 16);
+		assert.strictEqual(images[0].type, "png");
 		// Check PNG signature
 		assert.strictEqual(images[0].data[0], 0x89);
 		assert.strictEqual(images[0].data[1], 0x50);
@@ -660,6 +672,48 @@ describe("convertToPng()", () => {
 			assert.strictEqual(pngData[3], 0x47);
 		}
 	});
+});
+
+//-----------------------------------------------------------------------------
+// Fixture tests
+//-----------------------------------------------------------------------------
+
+const FIXTURES_DIR = join(dirname(fileURLToPath(import.meta.url)), "fixtures");
+
+const ICO_FIXTURES = readdirSync(FIXTURES_DIR).filter(f => /\.ico$/i.test(f));
+
+describe("Fixture ICO files", () => {
+	for (const icoFile of ICO_FIXTURES) {
+		describe(icoFile, () => {
+			it("should extract images that match the corresponding fixture files", async () => {
+				const icoData = await readFile(join(FIXTURES_DIR, icoFile));
+				const images = extractImages(new Uint8Array(icoData));
+				const base = basename(icoFile, ".ico");
+
+				assert.ok(
+					images.length > 0,
+					"Should extract at least one image",
+				);
+
+				for (const image of images) {
+					const suffix =
+						images.length > 1
+							? `-${image.width}x${image.height}`
+							: "";
+					const fixtureName = `${base}${suffix}.${image.type}`;
+					const expectedData = await readFile(
+						join(FIXTURES_DIR, fixtureName),
+					);
+
+					assert.deepStrictEqual(
+						image.data,
+						new Uint8Array(expectedData),
+						`Image data for ${fixtureName} should match fixture`,
+					);
+				}
+			});
+		});
+	}
 });
 
 // Helper to find chunk position in PNG

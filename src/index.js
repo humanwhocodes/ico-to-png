@@ -92,7 +92,7 @@ function isPNG(data) {
 /**
  * Extracts all images from ICO file data.
  * @param {Uint8Array} icoData The ICO file data.
- * @returns {Array<{data: Uint8Array, width: number, height: number, bpp: number}>} Array of extracted images.
+ * @returns {Array<{data: Uint8Array, width: number, height: number, bpp: number, type: "bmp"|"png"}>} Array of extracted images.
  * @throws {TypeError} If icoData is not a Uint8Array.
  * @throws {Error} If the ICO file is invalid.
  */
@@ -146,6 +146,7 @@ export function extractImages(icoData) {
 			width,
 			height,
 			bpp: bpp || (colorCount === 0 ? 32 : 8),
+			type: /** @type {"png"|"bmp"} */ (isPNG(imageData) ? "png" : "bmp"),
 		});
 	}
 
@@ -362,14 +363,23 @@ function createPNG(rgbaData, width, height) {
 		filteredData[y * (1 + width * 4)] = 0; // filter type: None
 		const rowStart = y * width * 4;
 		const destStart = y * (1 + width * 4) + 1;
-		filteredData.set(rgbaData.slice(rowStart, rowStart + width * 4), destStart);
+		filteredData.set(
+			rgbaData.slice(rowStart, rowStart + width * 4),
+			destStart,
+		);
 	}
 
 	const compressedData = deflate(filteredData);
-	const idatChunk = createChunk(new Uint8Array([73, 68, 65, 84]), compressedData);
+	const idatChunk = createChunk(
+		new Uint8Array([73, 68, 65, 84]),
+		compressedData,
+	);
 
 	// IEND chunk
-	const iendChunk = createChunk(new Uint8Array([73, 69, 78, 68]), new Uint8Array(0));
+	const iendChunk = createChunk(
+		new Uint8Array([73, 69, 78, 68]),
+		new Uint8Array(0),
+	);
 
 	// Combine all chunks
 	const pngSize =
@@ -429,7 +439,10 @@ function deflate(data) {
 
 	// Calculate size: each block has 5 bytes header + data
 	for (let i = 0; i < numBlocks; i++) {
-		const blockSize = Math.min(maxBlockSize, data.length - i * maxBlockSize);
+		const blockSize = Math.min(
+			maxBlockSize,
+			data.length - i * maxBlockSize,
+		);
 		compressedSize += 5 + blockSize;
 	}
 
@@ -450,11 +463,14 @@ function deflate(data) {
 		compressed[offset] = isFinal; // BFINAL and BTYPE (00 = no compression)
 		compressed[offset + 1] = blockSize & 0xff; // LEN low byte
 		compressed[offset + 2] = (blockSize >> 8) & 0xff; // LEN high byte
-		compressed[offset + 3] = (~blockSize) & 0xff; // NLEN low byte
-		compressed[offset + 4] = ((~blockSize) >> 8) & 0xff; // NLEN high byte
+		compressed[offset + 3] = ~blockSize & 0xff; // NLEN low byte
+		compressed[offset + 4] = (~blockSize >> 8) & 0xff; // NLEN high byte
 
 		// Copy data
-		compressed.set(data.slice(blockStart, blockStart + blockSize), offset + 5);
+		compressed.set(
+			data.slice(blockStart, blockStart + blockSize),
+			offset + 5,
+		);
 
 		offset += 5 + blockSize;
 	}
