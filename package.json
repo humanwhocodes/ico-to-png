@@ -1,7 +1,7 @@
 {
-  "name": "@humanwhocodes/replace-me",
+  "name": "@humanwhocodes/ico-to-png",
   "version": "0.0.0",
-  "description": "Replace me",
+  "description": "Convert .ico files to .png format without dependencies",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -49,10 +49,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/humanwhocodes/replace-me.git"
+    "url": "git+https://github.com/humanwhocodes/ico-to-png.git"
   },
   "keywords": [
-
+    "ico",
+    "png",
+    "image",
+    "converter",
+    "favicon"
   ],
   "author": "Nicholas C. Zaks",
   "license": "Apache-2.0",
