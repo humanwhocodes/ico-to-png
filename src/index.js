@@ -196,6 +196,7 @@ export function extractLargestImageAsPng(icoData) {
 			largestImage.width,
 			largestImage.height,
 		),
+		bpp: 32,
 		type: "png",
 	};
 }

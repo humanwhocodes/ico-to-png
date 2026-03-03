@@ -745,6 +745,7 @@ describe("extractLargestImageAsPng()", () => {
 
 		assert.strictEqual(image.width, 32);
 		assert.strictEqual(image.height, 32);
+		assert.strictEqual(image.bpp, 32);
 		assert.strictEqual(image.type, "png");
 		assert.strictEqual(image.data[0], 0x89);
 		assert.strictEqual(image.data[1], 0x50);
@@ -758,6 +759,7 @@ describe("extractLargestImageAsPng()", () => {
 
 		assert.strictEqual(image.width, 16);
 		assert.strictEqual(image.height, 16);
+		assert.strictEqual(image.bpp, 32);
 		assert.strictEqual(image.type, "png");
 		assert.strictEqual(image.data[0], 0x89);
 		assert.strictEqual(image.data[1], 0x50);
