@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/humanwhocodes/ico-to-png/compare/ico-to-png-v1.0.0...ico-to-png-v1.1.0) (2026-03-03)
+
+
+### Features
+
+* add `extractImagesAsPng()` to return PNG-only extracted images ([#3](https://github.com/humanwhocodes/ico-to-png/issues/3)) ([0103501](https://github.com/humanwhocodes/ico-to-png/commit/01035011937f0962d37d16d0b2977f98043360a1))
+* add largest-image extraction APIs with optional PNG normalization ([#4](https://github.com/humanwhocodes/ico-to-png/issues/4)) ([959cf63](https://github.com/humanwhocodes/ico-to-png/commit/959cf63284f7b5964f5551a42eb16aba3d4e3dc0))
+
 ## 1.0.0 (2026-02-28)
 
 
