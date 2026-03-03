@@ -16,7 +16,7 @@ npm install @humanwhocodes/ico-to-png
 
 ## Usage
 
-This package exports two main functions:
+This package exports three main functions:
 
 ### `extractImages(icoData)`
 
@@ -77,6 +77,16 @@ const pngData = convertToPng(images[0].data, images[0].width, images[0].height);
 
 await writeFile("favicon.png", pngData);
 ```
+
+### `extractImagesAsPng(icoData)`
+
+Extracts all images from ICO file data and ensures each returned image is PNG data.
+
+**Parameters:**
+
+- `icoData` (Uint8Array): The ICO file data
+
+**Returns:** An array of objects matching `extractImages()` output, but with PNG data and `type` set to `"png"` for each image.
 
 ### Complete Example
 

@@ -154,6 +154,28 @@ export function extractImages(icoData) {
 }
 
 /**
+ * Extracts all images from ICO file data and converts BMP images to PNG.
+ * @param {Uint8Array} icoData The ICO file data.
+ * @returns {Array<{data: Uint8Array, width: number, height: number, bpp: number, type: "png"}>} Array of extracted images as PNG.
+ * @throws {TypeError} If icoData is not a Uint8Array.
+ * @throws {Error} If the ICO file is invalid.
+ */
+export function extractImagesAsPng(icoData) {
+	return extractImages(icoData).map(image => {
+		const data =
+			image.type === "bmp"
+				? convertToPng(image.data, image.width, image.height)
+				: image.data;
+
+		return {
+			...image,
+			data,
+			type: "png",
+		};
+	});
+}
+
+/**
  * Converts an image from ICO format to PNG format.
  * If the image is already a PNG, it's returned as-is.
  * If the image is a BMP, it's converted to PNG.

@@ -7,7 +7,7 @@
 // Imports
 //-----------------------------------------------------------------------------
 
-import { extractImages, convertToPng } from "../src/index.js";
+import { extractImages, extractImagesAsPng, convertToPng } from "../src/index.js";
 import assert from "node:assert";
 import { readFile } from "node:fs/promises";
 import { readdirSync } from "node:fs";
@@ -671,6 +671,32 @@ describe("convertToPng()", () => {
 			assert.strictEqual(pngData[2], 0x4e);
 			assert.strictEqual(pngData[3], 0x47);
 		}
+	});
+});
+
+describe("extractImagesAsPng()", () => {
+	it("should convert extracted BMP images to PNG", () => {
+		const icoData = createSimple32BitICO();
+		const images = extractImagesAsPng(icoData);
+
+		assert.strictEqual(images.length, 1);
+		assert.strictEqual(images[0].type, "png");
+		assert.strictEqual(images[0].data[0], 0x89);
+		assert.strictEqual(images[0].data[1], 0x50);
+		assert.strictEqual(images[0].data[2], 0x4e);
+		assert.strictEqual(images[0].data[3], 0x47);
+	});
+
+	it("should keep extracted PNG images as PNG", () => {
+		const icoData = createPngICO();
+		const images = extractImagesAsPng(icoData);
+
+		assert.strictEqual(images.length, 1);
+		assert.strictEqual(images[0].type, "png");
+		assert.strictEqual(images[0].data[0], 0x89);
+		assert.strictEqual(images[0].data[1], 0x50);
+		assert.strictEqual(images[0].data[2], 0x4e);
+		assert.strictEqual(images[0].data[3], 0x47);
 	});
 });
 
