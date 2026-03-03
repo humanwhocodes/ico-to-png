@@ -162,10 +162,11 @@ export function extractImages(icoData) {
  */
 export function extractImagesAsPng(icoData) {
 	return extractImages(icoData).map(image => {
-		const data =
-			image.type === "bmp"
-				? convertToPng(image.data, image.width, image.height)
-				: image.data;
+		let data = image.data;
+
+		if (image.type === "bmp") {
+			data = convertToPng(image.data, image.width, image.height);
+		}
 
 		return {
 			...image,
