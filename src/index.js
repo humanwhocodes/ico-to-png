@@ -154,6 +154,53 @@ export function extractImages(icoData) {
 }
 
 /**
+ * Extracts the largest image from ICO file data.
+ * @param {Uint8Array} icoData The ICO file data.
+ * @returns {{data: Uint8Array, width: number, height: number, bpp: number, type: "bmp"|"png"}} The largest extracted image.
+ * @throws {TypeError} If icoData is not a Uint8Array.
+ * @throws {Error} If the ICO file is invalid.
+ */
+export function extractLargestImage(icoData) {
+	const images = extractImages(icoData);
+
+	return images.reduce((largestImage, image) => {
+		if (image.width * image.height > largestImage.width * largestImage.height) {
+			return image;
+		}
+
+		return largestImage;
+	});
+}
+
+/**
+ * Extracts the largest image from ICO file data and returns it as PNG.
+ * @param {Uint8Array} icoData The ICO file data.
+ * @returns {{data: Uint8Array, width: number, height: number, bpp: number, type: "png"}} The largest extracted image as PNG.
+ * @throws {TypeError} If icoData is not a Uint8Array.
+ * @throws {Error} If the ICO file is invalid.
+ */
+export function extractLargestImageAsPng(icoData) {
+	const largestImage = extractLargestImage(icoData);
+
+	if (largestImage.type === "png") {
+		return {
+			...largestImage,
+			type: "png",
+		};
+	}
+
+	return {
+		...largestImage,
+		data: convertToPng(
+			largestImage.data,
+			largestImage.width,
+			largestImage.height,
+		),
+		type: "png",
+	};
+}
+
+/**
  * Converts an image from ICO format to PNG format.
  * If the image is already a PNG, it's returned as-is.
  * If the image is a BMP, it's converted to PNG.

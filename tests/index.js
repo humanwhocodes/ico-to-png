@@ -7,7 +7,12 @@
 // Imports
 //-----------------------------------------------------------------------------
 
-import { extractImages, convertToPng } from "../src/index.js";
+import {
+	extractImages,
+	extractLargestImage,
+	extractLargestImageAsPng,
+	convertToPng,
+} from "../src/index.js";
 import assert from "node:assert";
 import { readFile } from "node:fs/promises";
 import { readdirSync } from "node:fs";
@@ -671,6 +676,45 @@ describe("convertToPng()", () => {
 			assert.strictEqual(pngData[2], 0x4e);
 			assert.strictEqual(pngData[3], 0x47);
 		}
+	});
+});
+
+describe("extractLargestImage()", () => {
+	it("should return the largest image from a multi-image ICO", () => {
+		const icoData = createMultiImageICO();
+		const image = extractLargestImage(icoData);
+
+		assert.strictEqual(image.width, 32);
+		assert.strictEqual(image.height, 32);
+		assert.strictEqual(image.type, "bmp");
+	});
+});
+
+describe("extractLargestImageAsPng()", () => {
+	it("should convert the largest BMP image to PNG", () => {
+		const icoData = createMultiImageICO();
+		const image = extractLargestImageAsPng(icoData);
+
+		assert.strictEqual(image.width, 32);
+		assert.strictEqual(image.height, 32);
+		assert.strictEqual(image.type, "png");
+		assert.strictEqual(image.data[0], 0x89);
+		assert.strictEqual(image.data[1], 0x50);
+		assert.strictEqual(image.data[2], 0x4e);
+		assert.strictEqual(image.data[3], 0x47);
+	});
+
+	it("should return the largest image as-is when already PNG", () => {
+		const icoData = createPngICO();
+		const image = extractLargestImageAsPng(icoData);
+
+		assert.strictEqual(image.width, 16);
+		assert.strictEqual(image.height, 16);
+		assert.strictEqual(image.type, "png");
+		assert.strictEqual(image.data[0], 0x89);
+		assert.strictEqual(image.data[1], 0x50);
+		assert.strictEqual(image.data[2], 0x4e);
+		assert.strictEqual(image.data[3], 0x47);
 	});
 });
 
