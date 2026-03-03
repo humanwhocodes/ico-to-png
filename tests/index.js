@@ -7,7 +7,13 @@
 // Imports
 //-----------------------------------------------------------------------------
 
-import { extractImages, extractImagesAsPng, convertToPng } from "../src/index.js";
+import {
+	extractImages,
+  extractImagesAsPng,
+	extractLargestImage,
+	extractLargestImageAsPng,
+	convertToPng,
+} from "../src/index.js";
 import assert from "node:assert";
 import { readFile } from "node:fs/promises";
 import { readdirSync } from "node:fs";
@@ -685,7 +691,7 @@ describe("extractImagesAsPng()", () => {
 				message: "Expected a Uint8Array argument.",
 			},
 		);
-	});
+	});        
 
 	it("should propagate invalid ICO errors", () => {
 		assert.throws(
@@ -726,6 +732,95 @@ describe("extractImagesAsPng()", () => {
 		assert.strictEqual(images[0].data[1], 0x50);
 		assert.strictEqual(images[0].data[2], 0x4e);
 		assert.strictEqual(images[0].data[3], 0x47);
+  });
+}); 
+    
+describe("extractLargestImage()", () => {
+	it("should throw TypeError for non-Uint8Array input", () => {
+		assert.throws(
+			() => {
+				extractLargestImage("not a uint8array");
+			},
+			{
+				name: "TypeError",
+				message: "Expected a Uint8Array argument.",
+			},
+		);
+	});
+
+	it("should throw Error for invalid ICO data", () => {
+		assert.throws(
+			() => {
+				extractLargestImage(new Uint8Array(5));
+			},
+			{
+				name: "Error",
+				message: "Invalid ICO file: too small.",
+			},
+		);
+	});
+
+	it("should return the largest image from a multi-image ICO", () => {
+		const icoData = createMultiImageICO();
+		const image = extractLargestImage(icoData);
+
+		assert.strictEqual(image.width, 32);
+		assert.strictEqual(image.height, 32);
+		assert.strictEqual(image.type, "bmp");
+	});
+});
+
+describe("extractLargestImageAsPng()", () => {
+	it("should throw TypeError for non-Uint8Array input", () => {
+		assert.throws(
+			() => {
+				extractLargestImageAsPng("not a uint8array");
+			},
+			{
+				name: "TypeError",
+				message: "Expected a Uint8Array argument.",
+			},
+		);
+	});
+
+	it("should throw Error for invalid ICO data", () => {
+		assert.throws(
+			() => {
+				extractLargestImageAsPng(new Uint8Array(5));
+			},
+			{
+				name: "Error",
+				message: "Invalid ICO file: too small.",
+			},
+		);
+	});
+
+	it("should convert the largest BMP image to PNG", () => {
+		const icoData = createMultiImageICO();
+		const image = extractLargestImageAsPng(icoData);
+
+		assert.strictEqual(image.width, 32);
+		assert.strictEqual(image.height, 32);
+		assert.strictEqual(image.bpp, 32);
+		assert.strictEqual(image.type, "png");
+		assert.strictEqual(image.data[0], 0x89);
+		assert.strictEqual(image.data[1], 0x50);
+		assert.strictEqual(image.data[2], 0x4e);
+		assert.strictEqual(image.data[3], 0x47);
+	});
+
+	it("should return the largest image as-is when already PNG", () => {
+		const icoData = createPngICO();
+		const image = extractLargestImageAsPng(icoData);
+
+		assert.strictEqual(image.width, 16);
+		assert.strictEqual(image.height, 16);
+		assert.strictEqual(image.bpp, 32);
+		assert.strictEqual(image.type, "png");
+		assert.strictEqual(image.data[0], 0x89);
+		assert.strictEqual(image.data[1], 0x50);
+		assert.strictEqual(image.data[2], 0x4e);
+		assert.strictEqual(image.data[3], 0x47);
 	});
 });
 
