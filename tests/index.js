@@ -691,7 +691,7 @@ describe("extractImagesAsPng()", () => {
 				message: "Expected a Uint8Array argument.",
 			},
 		);
-	});        
+	});
 
 	it("should propagate invalid ICO errors", () => {
 		assert.throws(
@@ -711,6 +711,7 @@ describe("extractImagesAsPng()", () => {
 
 		assert.strictEqual(images.length, 1);
 		assert.strictEqual(images[0].type, "png");
+		assert.strictEqual(images[0].bpp, 32);
 		assert.strictEqual(images[0].data[0], 0x89);
 		assert.strictEqual(images[0].data[1], 0x50);
 		assert.strictEqual(images[0].data[2], 0x4e);
@@ -732,9 +733,9 @@ describe("extractImagesAsPng()", () => {
 		assert.strictEqual(images[0].data[1], 0x50);
 		assert.strictEqual(images[0].data[2], 0x4e);
 		assert.strictEqual(images[0].data[3], 0x47);
-  });
-}); 
-    
+	});
+});
+
 describe("extractLargestImage()", () => {
 	it("should throw TypeError for non-Uint8Array input", () => {
 		assert.throws(
