@@ -176,7 +176,7 @@ export function extractImagesAsPng(icoData) {
 	});
 }
   
-/*
+/**
  * Extracts the largest image from ICO file data.
  * @param {Uint8Array} icoData The ICO file data.
  * @returns {{data: Uint8Array, width: number, height: number, bpp: number, type: "bmp"|"png"}} The largest extracted image.
