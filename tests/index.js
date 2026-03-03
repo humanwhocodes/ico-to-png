@@ -680,6 +680,30 @@ describe("convertToPng()", () => {
 });
 
 describe("extractLargestImage()", () => {
+	it("should throw TypeError for non-Uint8Array input", () => {
+		assert.throws(
+			() => {
+				extractLargestImage("not a uint8array");
+			},
+			{
+				name: "TypeError",
+				message: "Expected a Uint8Array argument.",
+			},
+		);
+	});
+
+	it("should throw Error for invalid ICO data", () => {
+		assert.throws(
+			() => {
+				extractLargestImage(new Uint8Array(5));
+			},
+			{
+				name: "Error",
+				message: "Invalid ICO file: too small.",
+			},
+		);
+	});
+
 	it("should return the largest image from a multi-image ICO", () => {
 		const icoData = createMultiImageICO();
 		const image = extractLargestImage(icoData);
@@ -691,6 +715,30 @@ describe("extractLargestImage()", () => {
 });
 
 describe("extractLargestImageAsPng()", () => {
+	it("should throw TypeError for non-Uint8Array input", () => {
+		assert.throws(
+			() => {
+				extractLargestImageAsPng("not a uint8array");
+			},
+			{
+				name: "TypeError",
+				message: "Expected a Uint8Array argument.",
+			},
+		);
+	});
+
+	it("should throw Error for invalid ICO data", () => {
+		assert.throws(
+			() => {
+				extractLargestImageAsPng(new Uint8Array(5));
+			},
+			{
+				name: "Error",
+				message: "Invalid ICO file: too small.",
+			},
+		);
+	});
+
 	it("should convert the largest BMP image to PNG", () => {
 		const icoData = createMultiImageICO();
 		const image = extractLargestImageAsPng(icoData);
