@@ -154,6 +154,32 @@ export function extractImages(icoData) {
 }
 
 /**
+ * Extracts all images from ICO file data and converts BMP images to PNG.
+ * @param {Uint8Array} icoData The ICO file data.
+ * @returns {Array<{data: Uint8Array, width: number, height: number, bpp: number, type: "png"}>} Array of extracted images as PNG.
+ * @throws {TypeError} If icoData is not a Uint8Array.
+ * @throws {Error} If the ICO file is invalid.
+ */
+export function extractImagesAsPng(icoData) {
+	return extractImages(icoData).map(image => {
+		let data = image.data;
+		let bpp = image.bpp;
+
+		if (image.type === "bmp") {
+			data = convertToPng(image.data, image.width, image.height);
+			bpp = 32;
+		}
+
+		return {
+			...image,
+			data,
+			bpp,
+			type: "png",
+		};
+	});
+}
+  
+/**
  * Extracts the largest image from ICO file data.
  * @param {Uint8Array} icoData The ICO file data.
  * @returns {{data: Uint8Array, width: number, height: number, bpp: number, type: "bmp"|"png"}} The largest extracted image.

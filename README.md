@@ -16,7 +16,7 @@ npm install @humanwhocodes/ico-to-png
 
 ## Usage
 
-This package exports four main functions:
+This package exports the following functions:
 
 ### `extractImages(icoData)`
 
@@ -77,6 +77,17 @@ const pngData = convertToPng(images[0].data, images[0].width, images[0].height);
 
 await writeFile("favicon.png", pngData);
 ```
+
+### `extractImagesAsPng(icoData)`
+
+Extracts all images from ICO file data and ensures each returned image is PNG data.
+
+**Parameters:**
+
+- `icoData` (Uint8Array): The ICO file data
+
+**Returns:** An array of objects matching `extractImages()` output, but with PNG data and `type` set to `"png"` for each image. For images that were originally BMP, the `bpp` value reflects the PNG data (for example, converted RGBA PNGs use `bpp = 32`) and may not match the original ICO entry’s `bpp`, so consumers should not rely on `bpp` preserving the ICO header value.
+
 
 ### `extractLargestImage(icoData)`
 

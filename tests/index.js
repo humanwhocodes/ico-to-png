@@ -9,6 +9,7 @@
 
 import {
 	extractImages,
+  extractImagesAsPng,
 	extractLargestImage,
 	extractLargestImageAsPng,
 	convertToPng,
@@ -676,6 +677,62 @@ describe("convertToPng()", () => {
 			assert.strictEqual(pngData[2], 0x4e);
 			assert.strictEqual(pngData[3], 0x47);
 		}
+	});
+});
+
+describe("extractImagesAsPng()", () => {
+	it("should throw TypeError for non-Uint8Array input", () => {
+		assert.throws(
+			() => {
+				extractImagesAsPng("not a uint8array");
+			},
+			{
+				name: "TypeError",
+				message: "Expected a Uint8Array argument.",
+			},
+		);
+	});
+
+	it("should propagate invalid ICO errors", () => {
+		assert.throws(
+			() => {
+				extractImagesAsPng(new Uint8Array(5));
+			},
+			{
+				name: "Error",
+				message: "Invalid ICO file: too small.",
+			},
+		);
+	});
+
+	it("should convert extracted BMP images to PNG", () => {
+		const icoData = createSimple32BitICO();
+		const images = extractImagesAsPng(icoData);
+
+		assert.strictEqual(images.length, 1);
+		assert.strictEqual(images[0].type, "png");
+		assert.strictEqual(images[0].bpp, 32);
+		assert.strictEqual(images[0].data[0], 0x89);
+		assert.strictEqual(images[0].data[1], 0x50);
+		assert.strictEqual(images[0].data[2], 0x4e);
+		assert.strictEqual(images[0].data[3], 0x47);
+	});
+
+	it("should keep extracted PNG images as PNG", () => {
+		const icoData = createPngICO();
+		const extractedImages = extractImages(icoData);
+		const images = extractImagesAsPng(icoData);
+
+		assert.strictEqual(images.length, 1);
+		assert.strictEqual(images[0].type, "png");
+		assert.strictEqual(images[0].width, extractedImages[0].width);
+		assert.strictEqual(images[0].height, extractedImages[0].height);
+		assert.strictEqual(images[0].bpp, extractedImages[0].bpp);
+		assert.deepStrictEqual(images[0].data, extractedImages[0].data);
+		assert.strictEqual(images[0].data[0], 0x89);
+		assert.strictEqual(images[0].data[1], 0x50);
+		assert.strictEqual(images[0].data[2], 0x4e);
+		assert.strictEqual(images[0].data[3], 0x47);
 	});
 });
 
