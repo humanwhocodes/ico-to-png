@@ -163,14 +163,17 @@ export function extractImages(icoData) {
 export function extractImagesAsPng(icoData) {
 	return extractImages(icoData).map(image => {
 		let data = image.data;
+		let bpp = image.bpp;
 
 		if (image.type === "bmp") {
 			data = convertToPng(image.data, image.width, image.height);
+			bpp = 32;
 		}
 
 		return {
 			...image,
 			data,
+			bpp,
 			type: "png",
 		};
 	});
